@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Barre latérale</title>
+<style>
+  :root { --bg: #1f2430; --fg: #e8eaf0; --muted: #8b93a7; --accent: #4c8dff; }
+  * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+  html, body { height: 100%; background: var(--bg); color: var(--fg);
+    font: 12px "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  #bar { height: 100%; display: flex; flex-direction: column; align-items: center; padding: 10px 0; gap: 8px; }
+  #accounts { display: flex; flex-direction: column; gap: 10px; align-items: center; overflow-y: auto; flex: 1; width: 100%; padding: 2px 0; scrollbar-width: none; }
+  #accounts::-webkit-scrollbar { display: none; }
+  .acc { position: relative; width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-size: 17px; font-weight: 600; color: #fff; cursor: pointer; opacity: .55;
+    transition: opacity .15s, transform .15s, border-radius .15s; }
+  .acc:hover { opacity: .9; }
+  .acc.active { opacity: 1; border-radius: 12px; }
+  .acc.active::before { content: ""; position: absolute; left: -14px; top: 8px; bottom: 8px; width: 4px; border-radius: 0 4px 4px 0; background: var(--fg); }
+  .round { width: 40px; height: 40px; border-radius: 50%; flex: none; display: grid; place-items: center; font-size: 22px;
+    color: var(--muted); border: 1.5px dashed #3a4256; cursor: pointer; background: none; }
+  .round:hover { color: var(--fg); border-color: var(--muted); }
+  #services { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 8px 6px 0; border-top: 1px solid #2d3445; }
+  .svc { background: none; border: 0; color: var(--muted); cursor: pointer; padding: 6px 0; border-radius: 8px; font: inherit; }
+  .svc:hover { background: #2a3142; color: var(--fg); }
+  .svc span { display: block; font-size: 17px; line-height: 1.1; }
+  #menu { position: fixed; display: none; background: #2a3142; border: 1px solid #3a4256; border-radius: 8px; padding: 4px; z-index: 10; min-width: 130px; box-shadow: 0 6px 20px #0008; }
+  #menu button { display: block; width: 100%; text-align: left; background: none; border: 0; color: var(--fg); padding: 7px 10px; border-radius: 5px; font: inherit; cursor: pointer; }
+  #menu button:hover { background: #3a4256; }
+  #menu .danger { color: #ff7b7b; }
+  #modal { position: fixed; inset: 0; display: none; background: #000a; place-items: center; z-index: 20; }
+  #modal.open { display: grid; }
+  #modal form { background: #2a3142; padding: 10px; border-radius: 10px; width: 60px; }
+  #modal input { width: 100%; padding: 6px 4px; border-radius: 6px; border: 1px solid #3a4256; background: #1f2430; color: var(--fg); font: inherit; text-align: center; user-select: text; }
+  #modal small { display: block; margin-top: 6px; color: var(--muted); text-align: center; font-size: 10px; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <div id="accounts"></div>
+  <button class="round" id="add" title="Ajouter un compte">+</button>
+  <div id="services">
+    <button class="svc" data-svc="gmail" title="Gmail"><span>✉️</span>Mail</button>
+    <button class="svc" data-svc="calendar" title="Agenda"><span>📅</span>Agenda</button>
+    <button class="svc" data-svc="drive" title="Drive"><span>📁</span>Drive</button>
+    <button class="svc" data-svc="meet" title="Meet"><span>🎥</span>Meet</button>
+  </div>
+</div>
+
+<div id="menu">
+  <button id="m-rename">Renommer</button>
+  <button id="m-remove" class="danger">Supprimer</button>
+</div>
+
+<div id="modal"><form id="modal-form">
+  <input id="modal-input" maxlength="24" autocomplete="off">
+  <small id="modal-hint">Entrée ↵</small>
+</form></div>
+
+<script>
+const { invoke } = window.__TAURI__.core;
+const COLORS = ["#4c8dff", "#e8710a", "#188038", "#a142f4", "#d93025", "#12a4af", "#c26401", "#5f6368"];
+const $ = (s) => document.querySelector(s);
+let state = { accounts: [], active: null };
+let menuId = null;
+let modalAction = null;
+
+const colorOf = (id) => { let h = 0; for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0; return COLORS[h % COLORS.length]; };
+
+function render() {
+  const box = $("#accounts");
+  box.innerHTML = "";
+  for (const a of state.accounts) {
+    const el = document.createElement("div");
+    el.className = "acc" + (a.id === state.active ? " active" : "");
+    el.style.background = colorOf(a.id);
+    el.title = a.name;
+    el.textContent = (a.name.trim()[0] || "?").toUpperCase();
+    el.onclick = () => run("switch_account", { id: a.id });
+    el.oncontextmenu = (e) => { e.preventDefault(); openMenu(e.clientX, e.clientY, a); };
+    box.appendChild(el);
+  }
+}
+
+async function run(cmd, args) {
+  try { state = await invoke(cmd, args); render(); }
+  catch (e) { console.error(e); }
+}
+
+function openMenu(x, y, account) {
+  menuId = account.id;
+  const m = $("#menu");
+  m.style.display = "block";
+  m.style.left = Math.min(x, 60) + "px";
+  m.style.top = y + "px";
+}
+function closeMenu() { $("#menu").style.display = "none"; }
+document.addEventListener("click", closeMenu);
+
+function openModal(value, hint, action) {
+  modalAction = action;
+  $("#modal-hint").textContent = hint;
+  $("#modal-input").value = value;
+  $("#modal").classList.add("open");
+  $("#modal-input").focus();
+  $("#modal-input").select();
+}
+function closeModal() { $("#modal").classList.remove("open"); modalAction = null; }
+$("#modal").addEventListener("mousedown", (e) => { if (e.target.id === "modal") closeModal(); });
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeModal(); });
+$("#modal-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const v = $("#modal-input").value;
+  const action = modalAction;
+  closeModal();
+  if (action) action(v);
+});
+
+$("#add").onclick = () => openModal("", "Nom", (name) => run("add_account", { name }));
+$("#m-rename").onclick = () => {
+  const a = state.accounts.find((x) => x.id === menuId);
+  if (a) openModal(a.name, "Nom", (name) => run("rename_account", { id: a.id, name }));
+};
+$("#m-remove").onclick = () => run("remove_account", { id: menuId });
+document.querySelectorAll(".svc").forEach((b) => {
+  b.onclick = () => invoke("open_service", { service: b.dataset.svc }).catch(console.error);
+});
+
+run("get_state");
+</script>
+</body>
+</html>
