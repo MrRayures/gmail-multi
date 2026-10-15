@@ -759,7 +759,7 @@ fn main() {
 
             let window = WindowBuilder::new(app, "main")
                 .background_color(BG)
-                .title("Gmail Multi")
+                .title("MultiMail")
                 .theme(window_theme(light))
                 .inner_size(1280.0, 820.0)
                 .min_inner_size(900.0, 600.0)
