@@ -403,7 +403,22 @@ fn switch_account(app: AppHandle, state: State<AppState>, id: String) -> Result<
     Ok(result)
 }
 
+/// Longueur maximale d'un nom de compte, comme le `maxlength` du champ de `prompt.html`
+const NAME_MAX: usize = 24;
+
+/// Le champ de saisie limite déjà le nom, mais rien ne garantit qu'il vient de lui
+fn check_name(name: &str) -> Result<(), String> {
+    if name.chars().count() > NAME_MAX {
+        return Err(format!("nom trop long ({NAME_MAX} caractères au plus)"));
+    }
+    if name.chars().any(char::is_control) {
+        return Err("nom invalide".into());
+    }
+    Ok(())
+}
+
 fn add_account(app: &AppHandle, state: &AppState, name: &str) -> Result<(), String> {
+    check_name(name)?;
     let id = new_id();
     {
         let mut store = state.store.lock().unwrap();
@@ -423,10 +438,14 @@ fn rename_account(state: &AppState, id: &str, name: &str) -> Result<(), String> 
     if name.is_empty() {
         return Err("nom vide".into());
     }
+    check_name(name)?;
     let mut store = state.store.lock().unwrap();
-    if let Some(a) = store.accounts.iter_mut().find(|a| a.id == id) {
-        a.name = name.to_string();
-    }
+    let account = store
+        .accounts
+        .iter_mut()
+        .find(|a| a.id == id)
+        .ok_or("compte inconnu")?;
+    account.name = name.to_string();
     state.save(&store);
     Ok(())
 }
