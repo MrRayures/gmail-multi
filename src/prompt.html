@@ -57,18 +57,23 @@ if (config.kind === "color") {
   form.querySelector("label").textContent = "Couleur de fond";
   document.querySelector("#ok").textContent = "Valider";
   selected = colorOf(config);
-  for (const color of COLORS) {
+  COLORS.forEach((color, i) => {
     const b = document.createElement("button");
     b.type = "button";
+    b.title = COLOR_NAMES[i];
     b.style.background = color;
-    if (color === selected) b.className = "current";
+    b.classList.toggle("current", color === selected);
+    b.setAttribute("aria-pressed", color === selected);
     b.onclick = () => {
       selected = color;
-      document.querySelectorAll("#colors button").forEach((x) => x.classList.toggle("current", x === b));
+      document.querySelectorAll("#colors button").forEach((x) => {
+        x.classList.toggle("current", x === b);
+        x.setAttribute("aria-pressed", x === b);
+      });
       invoke("preview_color", { id: config.id, color }).catch(console.error);
     };
     document.querySelector("#colors").appendChild(b);
-  }
+  });
   (document.querySelector("#colors .current") || document.querySelector("#colors button")).focus();
 } else {
   input.value = config.name;
