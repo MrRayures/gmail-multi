@@ -1,6 +1,9 @@
 # MultiMail
 
-Petite application de bureau pour Windows (Tauri 2) qui permet d'utiliser plusieurs comptes Gmail et les services Google associés, avec une consommation mémoire minimale.
+Cette application existe pour répondre à un besoin personnel. Elle me permet d'utiliser plusieurs comptes Gmail et les services Google associés dans une même application tout en ayant une consommation mémoire minimale.
+Si elle peut aussi servir à quelqu'un d'autre tant mieux.
+
+🤖 Ce projet est codé avec l'aide Claude AI. La suite est géré et généré par lui même avec mon approbation.
 
 > Projet indépendant, non affilié à Google ni approuvé par Google. Gmail, Google Agenda, Google Drive et Google Meet sont des marques de Google LLC.
 
