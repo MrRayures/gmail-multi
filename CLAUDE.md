@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Projet
 
-Gmail Multi : application de bureau Tauri 2, Windows uniquement (WebView2, installeur NSIS), pour utiliser plusieurs comptes Gmail avec une consommation mémoire minimale. Le code, les commentaires et l'interface sont en français.
+MultiMail : application de bureau Tauri 2, Windows uniquement (WebView2, installeur NSIS), pour utiliser plusieurs comptes Gmail avec une consommation mémoire minimale. Le code, les commentaires et l'interface sont en français.
 
 **Contrainte du projet : l'application doit rester performante et simple.** Si une demande risque de mettre cela en péril (webview ou processus supplémentaire, dépendance, animation ou interrogation permanente, étape de build), la questionner avant de l'implémenter et proposer une alternative plus légère.
 
