@@ -1,8 +1,6 @@
-# À faire pour les prochaines versions
+# À faire pour la v0.1.2
 
-Liste de travail entre deux releases. Cocher une tâche une fois faite, et la retirer après la release qui l'inclut.
-
-## v0.1.2
+Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publiée.
 
 - [ ] **Changer l'icône de l'application** : le carré violet plein « fait tache » dans la barre des tâches, où les autres icônes sont des formes détourées sur fond transparent (style Windows 11).
   - Piste : enveloppe `mail` de Lucide en violet Dracula, sans fond, trait plus épais pour rester nette à 16 et 24 px.
