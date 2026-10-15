@@ -8,7 +8,7 @@ MultiMail : application de bureau Tauri 2, Windows uniquement (WebView2, install
 
 **Contrainte du projet : l'application doit rester performante et simple.** Si une demande risque de mettre cela en péril (webview ou processus supplémentaire, dépendance, animation ou interrogation permanente, étape de build), la questionner avant de l'implémenter et proposer une alternative plus légère.
 
-Règles détaillées par thème dans `.claude/rules/` : `git.md` (branches, commits, versions), `backend.md` (Rust, chargée pour `src-tauri/`), `frontend.md` (chargée pour `src/`), `ci.md` (chargée pour `.github/`).
+Règles détaillées par thème dans `.claude/rules/` : `git.md` (branches, commits, versions), `backend.md` (Rust, chargée pour `src-tauri/`), `frontend.md` (chargée pour `src/` et `src-tauri/icons/`, dont les icônes Lucide), `ci.md` (chargée pour `.github/`).
 
 ## Commandes
 

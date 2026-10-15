@@ -44,3 +44,5 @@ La première compilation est longue (plusieurs minutes), les suivantes sont rapi
 ## Licence
 
 [GPL-3.0-or-later](LICENSE) : vous pouvez utiliser, modifier et redistribuer ce logiciel, à condition que toute version redistribuée reste sous la même licence, avec son code source.
+
+Les icônes viennent de [Lucide](https://lucide.dev), sous [licence ISC](licenses/lucide.txt).
