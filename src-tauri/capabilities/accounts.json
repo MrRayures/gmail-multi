@@ -1,9 +1,16 @@
 {
   "$schema": "../gen/schemas/windows-schema.json",
   "identifier": "accounts",
-  "description": "Les pages Google des vues de comptes peuvent uniquement signaler leur adresse et leur avatar.",
+  "description": "Les pages des services Google utilisés peuvent uniquement signaler l'adresse et l'avatar du compte. Liste fermée : *.google.com inclurait des contenus publiés par des tiers (sites.google.com).",
   "webviews": ["acct-*"],
   "local": false,
-  "remote": { "urls": ["https://*.google.com"] },
+  "remote": {
+    "urls": [
+      "https://mail.google.com",
+      "https://calendar.google.com",
+      "https://drive.google.com",
+      "https://meet.google.com"
+    ]
+  },
   "permissions": ["allow-report-profile"]
 }
