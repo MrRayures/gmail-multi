@@ -14,7 +14,7 @@ Petite application de bureau (Tauri 2) pour utiliser plusieurs comptes Gmail et 
 
 À faire une seule fois :
 
-1. **Node.js** (LTS) : https://nodejs.org
+1. **Node.js** (LTS) : https://nodejs.org, puis **pnpm** : `npm install -g pnpm`
 2. **Rust** : https://rustup.rs (accepter les options par défaut)
 3. **Outils de compilation C++** : installer « Visual Studio Build Tools » avec la charge de travail « Développement Desktop en C++ ».
 4. **WebView2** : déjà présent sur Windows 10/11 à jour.
@@ -22,8 +22,8 @@ Petite application de bureau (Tauri 2) pour utiliser plusieurs comptes Gmail et 
 ## Lancer en développement
 
 ```
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 La première compilation est longue (plusieurs minutes), les suivantes sont rapides.
@@ -31,7 +31,7 @@ La première compilation est longue (plusieurs minutes), les suivantes sont rapi
 ## Créer l'installeur
 
 ```
-npm run build
+pnpm build
 ```
 
 L'installeur `.exe` se trouve dans `src-tauri/target/release/bundle/nsis/`. L'exécutable seul est dans `src-tauri/target/release/`.
