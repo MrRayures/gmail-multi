@@ -1,0 +1,16 @@
+{
+  "$schema": "../gen/schemas/windows-schema.json",
+  "identifier": "sidebar",
+  "description": "Commandes de gestion des comptes, réservées à la barre latérale.",
+  "webviews": ["sidebar"],
+  "permissions": [
+    "allow-get-state",
+    "allow-set-theme",
+    "allow-switch-account",
+    "allow-open-prompt",
+    "allow-remove-account",
+    "allow-reorder-accounts",
+    "allow-account-menu",
+    "allow-open-service"
+  ]
+}

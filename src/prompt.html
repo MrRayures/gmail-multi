@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nom du compte</title>
+<style>
+  /* Dracula, ou Alucard (sa variante claire) si le thème clair est choisi */
+  :root { --bg: #282a36; --fg: #f8f8f2; --muted: #6272a4; --accent: #bd93f9; --line: #44475a; --hover: #343746; }
+  :root.light { --bg: #fffbeb; --fg: #1f1f1f; --muted: #635d97; --accent: #644ac9; --line: #cfcfde; --hover: #ece7d2; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--fg);
+    font: 13px "Segoe UI", system-ui, sans-serif; overflow: hidden; user-select: none; }
+  form { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 16px 18px; }
+  label { color: var(--fg); }
+  input { width: 100%; padding: 8px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--hover);
+    color: var(--fg); font: inherit; user-select: text; outline: none; }
+  input:focus { border-color: var(--accent); }
+  #actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 4px; }
+  button { padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: none; color: var(--fg); font: inherit; cursor: pointer; }
+  button:hover { background: var(--hover); }
+  button[type="submit"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+  button[type="submit"]:hover { filter: brightness(1.1); }
+  #colors { display: flex; justify-content: space-between; }
+  #colors button { width: 34px; height: 34px; padding: 0; border-radius: 50%; border: 2px solid var(--bg); outline: none; }
+  #colors button:hover, #colors button:focus-visible { filter: brightness(1.1); box-shadow: 0 0 0 2px var(--muted); }
+  #colors button.current { box-shadow: 0 0 0 2px var(--fg); }
+  .color input, .name #colors { display: none; }
+</style>
+</head>
+<body>
+<form id="form" class="name">
+  <label for="name">Nom du compte</label>
+  <input id="name" maxlength="24" autocomplete="off" spellcheck="false">
+  <div id="colors"></div>
+  <div id="actions">
+    <button type="button" id="cancel">Annuler</button>
+    <button type="submit" id="ok">OK</button>
+  </div>
+</form>
+
+<script src="colors.js"></script>
+<script>
+const { invoke } = window.__TAURI__.core;
+// Fourni par le backend à l'ouverture : { id, name, color, kind, light } (id absent pour un nouveau
+// compte ; kind vaut "color" pour choisir la couleur de fond au lieu du nom ; light : thème clair)
+const config = window.__PROMPT__ || { id: null, name: "" };
+const form = document.querySelector("#form");
+document.documentElement.classList.toggle("light", !!config.light);
+const input = document.querySelector("#name");
+
+// Couleur sélectionnée : prévisualisée dans la barre latérale, enregistrée seulement à la validation
+let selected = null;
+
+if (config.kind === "color") {
+  form.className = "color";
+  form.querySelector("label").textContent = "Couleur de fond";
+  document.querySelector("#ok").textContent = "Valider";
+  selected = colorOf(config);
+  for (const color of COLORS) {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.style.background = color;
+    if (color === selected) b.className = "current";
+    b.onclick = () => {
+      selected = color;
+      document.querySelectorAll("#colors button").forEach((x) => x.classList.toggle("current", x === b));
+      invoke("preview_color", { id: config.id, color }).catch(console.error);
+    };
+    document.querySelector("#colors").appendChild(b);
+  }
+  (document.querySelector("#colors .current") || document.querySelector("#colors button")).focus();
+} else {
+  input.value = config.name;
+  if (config.id) input.required = true;
+  else input.placeholder = "Facultatif";
+  input.focus();
+  input.select();
+}
+
+const cancel = () => invoke("close_prompt").catch(console.error);
+document.querySelector("#cancel").onclick = cancel;
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") cancel(); });
+document.querySelector("#form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const args = selected ? { id: config.id, color: selected } : { id: config.id, name: input.value };
+  invoke("submit_prompt", args).catch(console.error);
+});
+</script>
+</body>
+</html>

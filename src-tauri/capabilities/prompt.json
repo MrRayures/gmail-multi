@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/windows-schema.json",
+  "identifier": "prompt",
+  "description": "La fenêtre de saisie du nom ou de la couleur d'un compte peut prévisualiser, valider ou annuler.",
+  "windows": ["prompt-*"],
+  "permissions": ["allow-submit-prompt", "allow-close-prompt", "allow-preview-color"]
+}

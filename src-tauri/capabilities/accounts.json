@@ -1,0 +1,9 @@
+{
+  "$schema": "../gen/schemas/windows-schema.json",
+  "identifier": "accounts",
+  "description": "Les pages Google des vues de comptes peuvent uniquement signaler leur adresse et leur avatar.",
+  "webviews": ["acct-*"],
+  "local": false,
+  "remote": { "urls": ["https://*.google.com"] },
+  "permissions": ["allow-report-profile"]
+}
