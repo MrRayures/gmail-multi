@@ -3,6 +3,7 @@ name = "gmail-multi"
 version = "0.1.0"
 description = "Gmail multi-comptes léger"
 edition = "2021"
+license = "GPL-3.0-or-later"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

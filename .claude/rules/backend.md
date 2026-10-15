@@ -28,7 +28,7 @@ Injecté dans les pages Google ; ses sélecteurs dépendent du HTML de Google et
 
 - `sidebar.json` : commandes de gestion des comptes, pour la webview `sidebar`.
 - `prompt.json` : aperçu, validation et annulation, pour les fenêtres `prompt-*`.
-- `accounts.json` : seule capacité ouverte à du contenu distant (`https://*.google.com` dans les vues `acct-*`), limitée à `report_profile`. Cette commande déduit le compte de la webview appelante et valide ses arguments ; ne rien y ajouter sans la même prudence.
+- `accounts.json` : seule capacité ouverte à du contenu distant, limitée à `report_profile` et à une liste fermée de services Google (mail, calendar, drive, meet) dans les vues `acct-*`. Jamais `*.google.com` : il inclut des contenus publiés par des tiers (`sites.google.com`). Un service ajouté à `service_url` doit y être ajouté pour que sa page puisse signaler le profil. Cette commande déduit le compte de la webview appelante et valide ses arguments ; ne rien y ajouter sans la même prudence.
 
 Une commande qui reçoit un identifiant de compte le vérifie dans le store avant tout usage (il peut servir à construire un chemin, comme `profiles/<id>`).
 
