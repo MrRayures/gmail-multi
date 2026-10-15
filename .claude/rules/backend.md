@@ -11,6 +11,16 @@ paths:
 - Ordre des verrous : `views` puis `store`, jamais l'inverse.
 - La vue est masquée jusqu'à `PageLoadEvent::Finished` (`reveal`), avec un filet de sécurité de 8 s limité à la dernière vue créée (`generation`). Tout chemin d'erreur après `set_loading(app, true)` doit arrêter le loader.
 
+## Bonnes pratiques Rust
+
+- `cargo fmt` (`rustfmt.toml` : 110 colonnes) et `cargo clippy --all-targets -- -D warnings` sans avertissement ; pas de `#[allow(clippy::…)]` sans commentaire qui le justifie.
+- Erreurs : une commande renvoie `Result<_, String>` avec un message court en français ; propager avec `?` et `map_err(|e| e.to_string())`. Pas de `unwrap()`/`expect()` sur une donnée venant de l'extérieur (arguments de commande, fichiers, pages) : une panique ferme l'application (`panic = "abort"` en release). Seules exceptions admises : `lock().unwrap()` (un verrou empoisonné signale déjà une panique) et les `expect` du démarrage, où il n'y a rien à sauver.
+- Ignorer un résultat (`let _ = …`) seulement pour une action non essentielle (fermer une vue, évaluer du JS dans la barre), avec un commentaire si ce n'est pas évident.
+- Valider côté Rust tout ce qui vient du frontend ou d'une page : l'interface ne protège rien (`maxlength`, liste de couleurs…). Vérifier les formats (couleur `#rrggbb`, adresse, `data:` URL) et les bornes de taille.
+- Préférer les emprunts aux copies (`&str`, `&Path`, `&[T]` en paramètre) et tenir les verrous le moins longtemps possible, dans un bloc `{ … }` qui se termine avant tout appel aux webviews.
+- Pas d'`unsafe`, pas de thread qui tourne en boucle, pas de nouvelle dépendance sans en discuter (contrainte de simplicité).
+- Commentaires `///` en français sur les fonctions dont le rôle ou les invariants ne sont pas évidents ; dire *pourquoi*, pas répéter le code.
+
 ## Pièges WebView2 / Tauri déjà rencontrés
 
 - Créer une webview ou une fenêtre depuis une commande **synchrone** bloque l'application sous Windows. Toute commande qui peut en créer est déclarée `#[tauri::command(async)]`, et le verrou du `Mutex<Store>` est relâché avant de toucher aux webviews.
