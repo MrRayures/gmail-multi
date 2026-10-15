@@ -1,0 +1,51 @@
+# Sur un tag vX.Y.Z : construit l'installeur NSIS et crée une release GitHub en brouillon,
+# à vérifier puis publier à la main.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vérifie que le tag correspond à la version de l'application
+        shell: pwsh
+        run: |
+          $version = (Get-Content src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            Write-Error "Le tag ${{ github.ref_name }} ne correspond pas à la version $version de tauri.conf.json"
+            exit 1
+          }
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - run: pnpm install --frozen-lockfile
+
+      - uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: Gmail Multi ${{ github.ref_name }}
+          releaseBody: Installeur Windows (NSIS) ci-dessous.
+          releaseDraft: true
