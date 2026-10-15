@@ -139,23 +139,38 @@ struct AppState {
 }
 
 impl AppState {
+    /// Écrit dans un fichier temporaire puis le renomme : une coupure pendant l'écriture ne
+    /// laisse jamais un `accounts.json` tronqué.
     fn save(&self, store: &Store) {
         if let Ok(json) = serde_json::to_string_pretty(store) {
-            let _ = fs::write(self.dir.join("accounts.json"), json);
+            let tmp = self.dir.join("accounts.json.tmp");
+            if fs::write(&tmp, json).is_ok() {
+                let _ = fs::rename(&tmp, self.dir.join("accounts.json"));
+            }
         }
     }
 }
 
-fn load_store(dir: &Path) -> Store {
-    let mut store: Store = fs::read_to_string(dir.join("accounts.json"))
-        .ok()
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+/// Charge les comptes. Le booléen indique si la liste est fiable : faux si `accounts.json`
+/// existe mais est illisible, auquel cas il est mis de côté (`accounts.json.invalide`) et les
+/// sessions sur disque ne doivent pas être considérées comme orphelines.
+fn load_store(dir: &Path) -> (Store, bool) {
+    let path = dir.join("accounts.json");
+    let (mut store, trusted) = match fs::read_to_string(&path) {
+        Err(_) => (Store::default(), true),
+        Ok(s) => match serde_json::from_str(&s) {
+            Ok(store) => (store, true),
+            Err(_) => {
+                let _ = fs::rename(&path, dir.join("accounts.json.invalide"));
+                (Store::default(), false)
+            }
+        },
+    };
     if store.accounts.is_empty() {
         store.accounts = vec![Account::new(new_id(), "Compte 1".into())];
         store.active = Some(store.accounts[0].id.clone());
     }
-    store
+    (store, trusted)
 }
 
 fn new_id() -> String {
@@ -728,8 +743,10 @@ fn main() {
         .setup(|app| {
             let dir = app.path().app_data_dir()?;
             fs::create_dir_all(&dir)?;
-            let store = load_store(&dir);
-            remove_orphan_profiles(&dir, &store);
+            let (store, trusted) = load_store(&dir);
+            if trusted {
+                remove_orphan_profiles(&dir, &store);
+            }
             let (active, light) = (store.active.is_some(), store.light);
             let state = AppState {
                 store: Mutex::new(store),
@@ -742,7 +759,7 @@ fn main() {
 
             let window = WindowBuilder::new(app, "main")
                 .background_color(BG)
-                .title("Gmail Multi")
+                .title("MultiMail")
                 .theme(window_theme(light))
                 .inner_size(1280.0, 820.0)
                 .min_inner_size(900.0, 600.0)
