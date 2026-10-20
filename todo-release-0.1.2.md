@@ -2,10 +2,6 @@
 
 Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publiée.
 
-- [ ] **Changer l'icône de l'application** : le carré violet plein « fait tache » dans la barre des tâches, où les autres icônes sont des formes détourées sur fond transparent (style Windows 11).
-  - Piste : enveloppe `mail` de Lucide en violet Dracula, sans fond, trait plus épais pour rester nette à 16 et 24 px.
-  - Régénérer les images avec `pnpm tauri icon` (procédure dans `.claude/rules/frontend.md`).
-
 - [ ] **Améliorer le chargement au changement de compte** : la vue précédente est fermée et Gmail rechargé entièrement (c'est ce qui économise la mémoire).
   - Écartée : garder les vues ouvertes (≈ 700 Mo par compte gardé, contraire à l'objectif du projet).
   - Piste : afficher la vue dès que Gmail montre son propre écran de chargement, au lieu d'attendre la fin complète du chargement (`reveal` sur `PageLoadEvent::Finished`).
@@ -14,7 +10,7 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - Piste : Dracula « Background Darker » `#191a21` pour le thème sombre, et un équivalent plus marqué pour le thème clair (Alucard).
   - Changer aussi `CONTENT_BG` dans `main.rs` (fond des vues de comptes avant leur affichage), sinon un flash de l'ancienne couleur apparaît.
 
-- [ ] **Mettre à jour le README** avec l'icône et une capture de l'application (après le changement d'icône ; capture sans données personnelles visibles).
+- [ ] **Mettre à jour le README** avec l'icône et une capture de l'application (capture sans données personnelles visibles).
 
 - [ ] **Documenter la protection des données locales** dans la rubrique Confidentialité du README :
   - cookies de session chiffrés par WebView2 (clé protégée par Windows/DPAPI, liée à la session) ;
