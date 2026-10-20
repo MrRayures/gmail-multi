@@ -23,8 +23,10 @@ use tauri::{
 const SIDEBAR_W: f64 = 68.0;
 /// Fond de la barre latérale (`--bg`), repris par la fenêtre
 const BG: Color = Color(0x28, 0x2a, 0x36, 0xff);
-/// Fond de la zone de contenu (`--bg-dark`), repris par les vues de comptes avant leur premier affichage
-const CONTENT_BG: Color = Color(0x21, 0x22, 0x2c, 0xff);
+/// Fond de la zone de contenu (`--content` de `index.html`, sombre puis clair), repris par les vues
+/// de comptes avant leur premier affichage pour éviter un flash d'une autre couleur
+const CONTENT_BG: Color = Color(0x19, 0x1a, 0x21, 0xff);
+const CONTENT_BG_LIGHT: Color = Color(0xe9, 0xe4, 0xcc, 0xff);
 const GMAIL: &str = "https://mail.google.com/mail/u/0/";
 
 #[derive(Serialize, Deserialize, Clone)]
@@ -304,11 +306,16 @@ fn create_account_view(
         .map_err(|_| "URL invalide".to_string())?;
     let generation = state.generation.fetch_add(1, Ordering::SeqCst) + 1;
     let loaded = Arc::new(AtomicBool::new(false));
+    let background = if state.store.lock().unwrap().light {
+        CONTENT_BG_LIGHT
+    } else {
+        CONTENT_BG
+    };
 
     // data_directory : un dossier de cookies/stockage distinct par compte (sessions isolées)
     let builder = WebviewBuilder::new(label, WebviewUrl::External(target))
         .data_directory(profile)
-        .background_color(CONTENT_BG)
+        .background_color(background)
         .initialization_script(PROFILE_SCRIPT)
         .on_new_window({
             let (app, label) = (app.clone(), label.to_string());

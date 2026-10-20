@@ -8,9 +8,9 @@
   /* Thème Dracula Classic (https://draculatheme.com/spec) : Background, Background Dark,
      Foreground, Comment, Purple ; bordures en Current Line, survols en Background Light.
      Thème clair (body.light) : Alucard, la variante claire de Dracula. */
-  :root { --bg: #282a36; --bg-dark: #21222c; --fg: #f8f8f2; --muted: #6272a4; --accent: #bd93f9;
+  :root { --bg: #282a36; --bg-dark: #21222c; --content: #191a21; --fg: #f8f8f2; --muted: #6272a4; --accent: #bd93f9;
     --line: #44475a; --hover: #343746; --hover-strong: #424450; --shadow: #191a21; }
-  body.light { --bg: #fffbeb; --bg-dark: #f4efd9; --fg: #1f1f1f; --muted: #635d97; --accent: #644ac9;
+  body.light { --bg: #fffbeb; --bg-dark: #f4efd9; --content: #e9e4cc; --fg: #1f1f1f; --muted: #635d97; --accent: #644ac9;
     --line: #cfcfde; --hover: #ece7d2; --hover-strong: #e2dcc4; --shadow: #1f1f1f40; }
   * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
   html, body { height: 100%; background: var(--bg); color: var(--fg);
@@ -43,7 +43,7 @@
   .svc .icon { display: block; margin: 0 auto 4px; pointer-events: none; }
   /* Zone du contenu, plus foncée que la barre : visible à droite tant que la vue du compte
      n'est pas affichée par-dessus. L'anneau ne tourne que pendant un chargement. */
-  #loader { position: fixed; left: 68px; right: 0; top: 0; bottom: 0; display: grid; place-items: center; background: var(--bg-dark); }
+  #loader { position: fixed; left: 68px; right: 0; top: 0; bottom: 0; display: grid; place-items: center; background: var(--content); }
   body.loading #loader::before { content: ""; width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--accent); animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   /* Réglage Windows « Effets d'animation » désactivé : pas de transition, et un loader ralenti
