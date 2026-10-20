@@ -10,6 +10,10 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - Écartée : garder les vues ouvertes (≈ 700 Mo par compte gardé, contraire à l'objectif du projet).
   - Piste : afficher la vue dès que Gmail montre son propre écran de chargement, au lieu d'attendre la fin complète du chargement (`reveal` sur `PageLoadEvent::Finished`).
 
+- [ ] **Foncer le fond de la zone de contenu** (à droite de la barre, visible pendant le chargement d'un compte) pour qu'elle se détache de la barre latérale : aujourd'hui `--bg-dark` (`#21222c`) contre `--bg` (`#282a36`), trop proches.
+  - Piste : Dracula « Background Darker » `#191a21` pour le thème sombre, et un équivalent plus marqué pour le thème clair (Alucard).
+  - Changer aussi `CONTENT_BG` dans `main.rs` (fond des vues de comptes avant leur affichage), sinon un flash de l'ancienne couleur apparaît.
+
 - [ ] **Mettre à jour le README** avec l'icône et une capture de l'application (après le changement d'icône ; capture sans données personnelles visibles).
 
 - [ ] **Documenter la protection des données locales** dans la rubrique Confidentialité du README :
