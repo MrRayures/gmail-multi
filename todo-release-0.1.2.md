@@ -20,3 +20,14 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - cache des pages, données hors ligne de Gmail et `accounts.json` non chiffrés, protégés seulement par les droits du profil Windows ;
   - recommander le chiffrement de l'appareil / BitLocker ; pas de chiffrement propre à l'application (la clé serait sur la même machine).
   - Ajouter l'astuce mémoire : désactiver Google Chat dans Gmail (Paramètres → Chat et Meet) économise ≈ 200 Mo par compte qui ne s'en sert pas.
+
+- [ ] **Corriger le téléchargement des pièces jointes** : cliquer sur « Télécharger » dans un mail ne fait rien.
+  - Bug prioritaire : c'est une fonction de base de Gmail.
+  - Pistes à vérifier : le lien de téléchargement passe par `on_new_window` → `open_link`, qui le navigue dans la vue ; le téléchargement lui-même n'est peut-être jamais pris en charge. Tauri propose `WebviewBuilder::on_download` pour choisir le dossier (Téléchargements de Windows) et laisser WebView2 enregistrer le fichier.
+
+- [ ] **Fun facts pendant le chargement ?** (idée à trancher)
+  - Depuis l'affichage dès le début du chargement, le loader de la barre ne reste visible qu'≈ 0,5 s : un texte n'aurait pas le temps d'être lu. Pendant le reste du chargement, c'est l'écran de Gmail qui s'affiche, et la barre latérale ne peut pas s'afficher par-dessus.
+  - À décider : abandonner, ou trouver un autre emplacement (par exemple au premier lancement).
+
+- [ ] **Indicateur visuel du service affiché** (Mail, Agenda, Drive, Meet) dans la barre latérale.
+  - Piste : le backend déduit le service de l'adresse de la page (`on_page_load`), y compris quand on navigue depuis la page elle-même, et l'indique à la barre (`eval`, comme `setLoading`) ; la barre met le bouton correspondant en évidence, comme le compte actif.
