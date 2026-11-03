@@ -33,7 +33,7 @@ La fenêtre `main` est créée en Rust (`windows: []` dans `tauri.conf.json`) et
 - `sidebar` : `index.html`. Elle occupe **toute** la fenêtre, mais seule sa bande gauche (`SIDEBAR_W`, 68 px) est visible ; le reste est recouvert par la vue du compte.
 - `acct-<id>` : la page Google du compte actif, placée à droite de la barre. **Une seule existe à la fois** (`show_active`). Chaque compte a son propre `data_directory` (`profiles/<id>` dans le dossier de données de l'application), donc des sessions isolées qui persistent sur disque.
 
-Conséquence à garder en tête : **du HTML de la barre latérale ne peut jamais s'afficher par-dessus la vue d'un compte** (webview native distincte, au-dessus dans l'ordre d'empilement). Tout ce qui doit déborder de la barre passe par du natif : menu contextuel natif (`account_menu`), fenêtre séparée (`open_prompt`). À l'inverse, le loader de changement de compte est du HTML de la barre, visible uniquement parce que la vue du compte reste masquée jusqu'à la fin de son chargement (`reveal`).
+Conséquence à garder en tête : **du HTML de la barre latérale ne peut jamais s'afficher par-dessus la vue d'un compte** (webview native distincte, au-dessus dans l'ordre d'empilement). Tout ce qui doit déborder de la barre passe par du natif : menu contextuel natif (`account_menu`), fenêtre séparée (`open_prompt`). À l'inverse, le loader de changement de compte est du HTML de la barre, visible uniquement parce que la vue du compte reste masquée jusqu'au début du chargement de sa page (`reveal`).
 
 ### État et communication
 

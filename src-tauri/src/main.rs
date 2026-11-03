@@ -227,7 +227,7 @@ fn set_loading(app: &AppHandle, on: bool) {
     }
 }
 
-/// Affiche la vue d'un compte une fois sa page chargée, et arrête le loader.
+/// Affiche la vue d'un compte dès le début du chargement de sa page, et arrête le loader.
 fn reveal(app: &AppHandle, label: &str) {
     if let Some(wv) = app.get_webview(label) {
         let _ = wv.show();
@@ -284,8 +284,8 @@ fn show_active(app: &AppHandle, url: Option<&str>) -> Result<(), String> {
         }
         return Ok(());
     }
-    // La vue reste masquée jusqu'à la fin du chargement : on voit le loader de la barre
-    // latérale au lieu d'un rectangle blanc. Il ne doit pas tourner indéfiniment si la création échoue.
+    // La vue reste masquée le temps de démarrer WebView2 (≈ 0,5 s) : on voit le loader de la barre
+    // latérale au lieu d'un rectangle vide. Il ne doit pas tourner indéfiniment si la création échoue.
     set_loading(app, true);
     create_account_view(app, &state, &id, &label, url).inspect_err(|_| set_loading(app, false))
 }
@@ -305,7 +305,7 @@ fn create_account_view(
         .parse()
         .map_err(|_| "URL invalide".to_string())?;
     let generation = state.generation.fetch_add(1, Ordering::SeqCst) + 1;
-    let loaded = Arc::new(AtomicBool::new(false));
+    let started = Arc::new(AtomicBool::new(false));
     let background = if state.store.lock().unwrap().light {
         CONTENT_BG_LIGHT
     } else {
@@ -324,11 +324,13 @@ fn create_account_view(
                 NewWindowResponse::Deny
             }
         })
+        // Affichage dès le début du chargement, pas à la fin : Gmail met ≈ 4 s à charger (mesuré),
+        // et son propre écran de chargement, avec sa barre de progression, apparaît aussitôt.
         .on_page_load({
-            let loaded = loaded.clone();
+            let started = started.clone();
             move |wv, payload| {
-                if payload.event() == PageLoadEvent::Finished {
-                    loaded.store(true, Ordering::SeqCst);
+                if payload.event() == PageLoadEvent::Started {
+                    started.store(true, Ordering::SeqCst);
                     reveal(wv.app_handle(), wv.label());
                 }
             }
@@ -341,11 +343,11 @@ fn create_account_view(
         )
         .map_err(|e| e.to_string())?;
     let _ = wv.hide();
-    // Le chargement a pu se terminer avant `hide()` : la vue serait alors restée masquée
-    if loaded.load(Ordering::SeqCst) {
+    // Le chargement a pu commencer avant `hide()` : la vue serait alors restée masquée
+    if started.load(Ordering::SeqCst) {
         reveal(app, label);
     }
-    // Filet de sécurité : si la fin de chargement n'est jamais signalée, on affiche quand même
+    // Filet de sécurité : si le début de chargement n'est jamais signalé, on affiche quand même
     // la vue, à condition qu'elle n'ait pas été remplacée entre-temps.
     let (handle, label) = (app.clone(), label.to_string());
     std::thread::spawn(move || {

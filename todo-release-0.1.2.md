@@ -2,9 +2,10 @@
 
 Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publiée.
 
-- [ ] **Améliorer le chargement au changement de compte** : la vue précédente est fermée et Gmail rechargé entièrement (c'est ce qui économise la mémoire).
+- [x] **Améliorer le chargement au changement de compte** : la vue précédente est fermée et Gmail rechargé entièrement (c'est ce qui économise la mémoire).
   - Écartée : garder les vues ouvertes (≈ 700 Mo par compte gardé, contraire à l'objectif du projet).
-  - Piste : afficher la vue dès que Gmail montre son propre écran de chargement, au lieu d'attendre la fin complète du chargement (`reveal` sur `PageLoadEvent::Finished`).
+  - Mesuré : ≈ 0,5 s de démarrage de WebView2, puis ≈ 4 s (2 à 6 s) de chargement de Gmail.
+  - Fait : la vue s'affiche dès le début du chargement (`PageLoadEvent::Started`) ; on voit l'écran de chargement de Gmail au lieu du loader. Durée réelle inchangée, flash blanc accepté en thème sombre.
 
 - [x] **Foncer le fond de la zone de contenu** (à droite de la barre, visible pendant le chargement d'un compte) pour qu'elle se détache de la barre latérale : aujourd'hui `--bg-dark` (`#21222c`) contre `--bg` (`#282a36`), trop proches.
   - Piste : Dracula « Background Darker » `#191a21` pour le thème sombre, et un équivalent plus marqué pour le thème clair (Alucard).

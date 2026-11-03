@@ -9,7 +9,7 @@ paths:
 
 - `show_active` ferme les autres vues avant de créer celle du compte actif, sous le verrou `views` : des changements de compte rapides tournent en parallèle. Pour changer de compte, modifier `store.active`, relâcher le verrou du store, puis appeler `show_active`.
 - Ordre des verrous : `views` puis `store`, jamais l'inverse.
-- La vue est masquée jusqu'à `PageLoadEvent::Finished` (`reveal`), avec un filet de sécurité de 8 s limité à la dernière vue créée (`generation`). Tout chemin d'erreur après `set_loading(app, true)` doit arrêter le loader.
+- La vue est masquée jusqu'à `PageLoadEvent::Started` (`reveal`) : on voit le loader de la barre pendant le démarrage de WebView2 (≈ 0,5 s), puis l'écran de chargement de Gmail (≈ 4 s mesurées). Ne pas revenir à `Finished` sans nouvelle mesure. Filet de sécurité de 8 s limité à la dernière vue créée (`generation`). Tout chemin d'erreur après `set_loading(app, true)` doit arrêter le loader.
 
 ## Bonnes pratiques Rust
 
