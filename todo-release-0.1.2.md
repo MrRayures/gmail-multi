@@ -21,9 +21,10 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - recommander le chiffrement de l'appareil / BitLocker ; pas de chiffrement propre à l'application (la clé serait sur la même machine).
   - Ajouter l'astuce mémoire : désactiver Google Chat dans Gmail (Paramètres → Chat et Meet) économise ≈ 200 Mo par compte qui ne s'en sert pas.
 
-- [ ] **Corriger le téléchargement des pièces jointes** : cliquer sur « Télécharger » dans un mail ne fait rien.
+- [x] **Corriger le téléchargement des pièces jointes** : cliquer sur « Télécharger » dans un mail ne fait rien.
   - Bug prioritaire : c'est une fonction de base de Gmail.
-  - Pistes à vérifier : le lien de téléchargement passe par `on_new_window` → `open_link`, qui le navigue dans la vue ; le téléchargement lui-même n'est peut-être jamais pris en charge. Tauri propose `WebviewBuilder::on_download` pour choisir le dossier (Téléchargements de Windows) et laisser WebView2 enregistrer le fichier.
+  - Cause (tracée) : le téléchargement démarre bien, mais sans gestionnaire WebView2 tente d'afficher sa propre fenêtre de téléchargement, invisible dans une vue intégrée.
+  - Fait : `on_download` ouvre la fenêtre « Enregistrer sous » de Windows (dépendance `rfd`, +4 Ko sur l'exécutable), sur le dossier Téléchargements avec le nom proposé.
 
 - [ ] **Fun facts pendant le chargement ?** (idée à trancher)
   - Depuis l'affichage dès le début du chargement, le loader de la barre ne reste visible qu'≈ 0,5 s : un texte n'aurait pas le temps d'être lu. Pendant le reste du chargement, c'est l'écran de Gmail qui s'affiche, et la barre latérale ne peut pas s'afficher par-dessus.

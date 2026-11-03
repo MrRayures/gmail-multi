@@ -13,10 +13,10 @@ use std::{
 };
 use tauri::{
     menu::{ContextMenu, MenuBuilder},
-    webview::{Color, NewWindowResponse, PageLoadEvent, WebviewBuilder},
+    webview::{Color, DownloadEvent, NewWindowResponse, PageLoadEvent, WebviewBuilder},
     window::WindowBuilder,
-    AppHandle, LogicalPosition, LogicalSize, Manager, State, Theme, Url, WebviewUrl, WebviewWindowBuilder,
-    WindowEvent,
+    AppHandle, LogicalPosition, LogicalSize, Manager, State, Theme, Url, Webview, WebviewUrl,
+    WebviewWindowBuilder, WindowEvent,
 };
 
 /// Largeur (en pixels logiques) de la barre latérale
@@ -290,6 +290,28 @@ fn show_active(app: &AppHandle, url: Option<&str>) -> Result<(), String> {
     create_account_view(app, &state, &id, &label, url).inspect_err(|_| set_loading(app, false))
 }
 
+/// Demande où enregistrer un téléchargement (pièce jointe), avec la fenêtre « Enregistrer sous » de
+/// Windows, ouverte sur le dossier et le nom proposés par WebView2 (Téléchargements). Renvoie
+/// `false` si l'utilisateur annule, ce qui annule le téléchargement.
+fn ask_download_path(wv: &Webview, destination: &mut PathBuf) -> bool {
+    let mut dialog = rfd::FileDialog::new().set_title("Enregistrer la pièce jointe");
+    if let Some(dir) = destination.parent() {
+        dialog = dialog.set_directory(dir);
+    }
+    if let Some(name) = destination.file_name() {
+        dialog = dialog.set_file_name(name.to_string_lossy());
+    }
+    // Fenêtre modale par rapport à la fenêtre principale, pour qu'elle reste au premier plan
+    let dialog = dialog.set_parent(&wv.window());
+    match dialog.save_file() {
+        Some(path) => {
+            *destination = path;
+            true
+        }
+        None => false,
+    }
+}
+
 fn create_account_view(
     app: &AppHandle,
     state: &AppState,
@@ -323,6 +345,12 @@ fn create_account_view(
                 open_link(&app, &label, url);
                 NewWindowResponse::Deny
             }
+        })
+        // Sans ce gestionnaire, WebView2 tente d'afficher sa propre fenêtre de téléchargement, qui
+        // n'apparaît pas dans une vue intégrée : cliquer sur « Télécharger » ne faisait rien.
+        .on_download(|wv, event| match event {
+            DownloadEvent::Requested { destination, .. } => ask_download_path(&wv, destination),
+            _ => true,
         })
         // Affichage dès le début du chargement, pas à la fin : Gmail met ≈ 4 s à charger (mesuré),
         // et son propre écran de chargement, avec sa barre de progression, apparaît aussitôt.
