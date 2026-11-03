@@ -26,6 +26,7 @@ paths:
 - Créer une webview ou une fenêtre depuis une commande **synchrone** bloque l'application sous Windows. Toute commande qui peut en créer est déclarée `#[tauri::command(async)]`, et le verrou du `Mutex<Store>` est relâché avant de toucher aux webviews.
 - Pour une fenêtre secondaire, utiliser `owner_raw` et non `parent_raw` : ce dernier crée une fenêtre enfant, masquée par les vues de comptes.
 - Une vue de compte ne sait pas ouvrir de nouvel onglet (`target="_blank"`, `window.open`) : `open_link` ouvre les services Google dans la vue elle-même et tout autre site dans le navigateur par défaut.
+- Les téléchargements (pièces jointes) exigent `on_download` : sans lui, WebView2 tente d'afficher sa propre fenêtre de téléchargement, invisible dans une vue intégrée, et rien ne se passe. `ask_download_path` ouvre la fenêtre « Enregistrer sous » de Windows (`rfd`).
 - Le flash blanc à l'affichage d'un compte (écran de chargement de Google) ne s'atténue pas depuis la page : un fondu injecté (balise `<style>`, puis styles posés en JavaScript) a été essayé sans aucun effet visible. Une vue WebView2 n'a pas d'opacité réglable.
 - Un script de page ne peut pas lire une ressource qui redirige vers un autre domaine (l'origine devient `null`, refusée par Google) : c'est pourquoi une photo de profil privée n'est pas récupérable.
 
