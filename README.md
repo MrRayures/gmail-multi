@@ -9,6 +9,8 @@ Si elle peut aussi servir à quelqu'un d'autre tant mieux.
 
 > Projet indépendant, non affilié à Google ni approuvé par Google. Gmail, Google Agenda, Google Drive et Google Meet sont des marques de Google LLC.
 
+![MultiMail : la barre latérale avec les comptes et les services, à côté de Gmail](docs/capture.png)
+
 ## Fonctionnement
 
 - **Un seul compte chargé à la fois.** Quand vous changez de compte, la vue précédente est détruite : plus aucun processus web pour elle. Sa session (cookies) reste sur le disque, vous restez connecté.

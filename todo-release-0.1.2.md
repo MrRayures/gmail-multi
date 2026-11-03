@@ -11,9 +11,9 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - Piste : Dracula « Background Darker » `#191a21` pour le thème sombre, et un équivalent plus marqué pour le thème clair (Alucard).
   - Changer aussi `CONTENT_BG` dans `main.rs` (fond des vues de comptes avant leur affichage), sinon un flash de l'ancienne couleur apparaît.
 
-- [ ] **Mettre à jour le README** avec l'icône et une capture de l'application (capture sans données personnelles visibles).
+- [x] **Mettre à jour le README** avec l'icône et une capture de l'application (capture sans données personnelles visibles).
   - [x] Icône en tête du README.
-  - [ ] Capture : à fournir (fichier `docs/capture.png`).
+  - [x] Capture (`docs/capture.png`, contenus masqués).
 
 - [x] **Documenter la protection des données locales** dans la rubrique Confidentialité du README :
   - cookies de session chiffrés par WebView2 (clé protégée par Windows/DPAPI, liée à la session) ;
