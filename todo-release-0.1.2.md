@@ -26,9 +26,7 @@ Cocher une tâche une fois faite ; supprimer ce fichier une fois la v0.1.2 publi
   - Cause (tracée) : le téléchargement démarre bien, mais sans gestionnaire WebView2 tente d'afficher sa propre fenêtre de téléchargement, invisible dans une vue intégrée.
   - Fait : `on_download` ouvre la fenêtre « Enregistrer sous » de Windows (dépendance `rfd`, +4 Ko sur l'exécutable), sur le dossier Téléchargements avec le nom proposé.
 
-- [ ] **Fun facts pendant le chargement ?** (idée à trancher)
-  - Depuis l'affichage dès le début du chargement, le loader de la barre ne reste visible qu'≈ 0,5 s : un texte n'aurait pas le temps d'être lu. Pendant le reste du chargement, c'est l'écran de Gmail qui s'affiche, et la barre latérale ne peut pas s'afficher par-dessus.
-  - À décider : abandonner, ou trouver un autre emplacement (par exemple au premier lancement).
+- [x] **Indicateur visuel du service affiché** (Mail, Agenda, Drive, Meet) dans la barre latérale.
+  - Fait : à chaque début de chargement de page, le backend déduit le service de l'adresse (`service_of`), y compris quand on navigue depuis la page elle-même, et l'indique à la barre (`setService`) ; le bouton correspondant a un fond et une icône en couleur d'accent.
 
-- [ ] **Indicateur visuel du service affiché** (Mail, Agenda, Drive, Meet) dans la barre latérale.
-  - Piste : le backend déduit le service de l'adresse de la page (`on_page_load`), y compris quand on navigue depuis la page elle-même, et l'indique à la barre (`eval`, comme `setLoading`) ; la barre met le bouton correspondant en évidence, comme le compte actif.
+Abandonné : fun facts pendant le chargement (le loader ne reste visible qu'≈ 0,5 s depuis l'affichage dès le début du chargement).

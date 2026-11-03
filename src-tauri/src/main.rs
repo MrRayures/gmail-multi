@@ -193,6 +193,18 @@ fn service_url(service: &str) -> Option<&'static str> {
     }
 }
 
+/// Service affiché par une page, déduit de son adresse : clé `data-svc` du bouton de la barre
+/// latérale à mettre en évidence (aucun pour une autre page Google, comme la connexion).
+fn service_of(url: &Url) -> Option<&'static str> {
+    match url.host_str()? {
+        "mail.google.com" => Some("gmail"),
+        "calendar.google.com" => Some("calendar"),
+        "drive.google.com" => Some("drive"),
+        "meet.google.com" => Some("meet"),
+        _ => None,
+    }
+}
+
 /// Place la barre latérale et la vue du compte actif selon la taille de la fenêtre.
 fn layout(app: &AppHandle) -> Result<(), String> {
     let Some(win) = app.get_window("main") else {
@@ -224,6 +236,14 @@ fn layout(app: &AppHandle) -> Result<(), String> {
 fn set_loading(app: &AppHandle, on: bool) {
     if let Some(sidebar) = app.get_webview("sidebar") {
         let _ = sidebar.eval(format!("setLoading({on})"));
+    }
+}
+
+/// Met en évidence dans la barre latérale le service de la page affichée
+fn set_service(app: &AppHandle, service: Option<&str>) {
+    if let Some(sidebar) = app.get_webview("sidebar") {
+        let service = serde_json::json!(service);
+        let _ = sidebar.eval(format!("setService({service})"));
     }
 }
 
@@ -273,7 +293,8 @@ fn show_active(app: &AppHandle, url: Option<&str>) -> Result<(), String> {
         }
     }
     let (Some(id), Some(label)) = (active, label) else {
-        // Plus aucun compte : rien à charger
+        // Plus aucun compte : rien à charger ni à mettre en évidence
+        set_service(app, None);
         set_loading(app, false);
         return Ok(());
     };
@@ -360,6 +381,8 @@ fn create_account_view(
                 if payload.event() == PageLoadEvent::Started {
                     started.store(true, Ordering::SeqCst);
                     reveal(wv.app_handle(), wv.label());
+                    // Y compris quand on change de service depuis la page (grille d'applications)
+                    set_service(wv.app_handle(), service_of(payload.url()));
                 }
             }
         });

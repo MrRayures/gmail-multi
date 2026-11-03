@@ -40,6 +40,9 @@
   #services { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 8px 6px 10px; border-top: 1px solid var(--line); background: var(--bg-dark); }
   .svc { background: none; border: 0; color: var(--fg); cursor: pointer; padding: 6px 0; border-radius: 8px; font: inherit; }
   .svc:hover { background: var(--hover); }
+  /* Service affiché par la vue du compte (setService) : fond et icône en couleur d'accent */
+  .svc.active { background: var(--hover); }
+  .svc.active .icon { color: var(--accent); }
   .svc .icon { display: block; margin: 0 auto 4px; pointer-events: none; }
   /* Zone du contenu, plus foncée que la barre : visible à droite tant que la vue du compte
      n'est pas affichée par-dessus. L'anneau ne tourne que pendant un chargement. */
@@ -153,6 +156,16 @@ function endDrag(el) {
 
 // Piloté par le backend : actif pendant le chargement de la vue d'un compte
 function setLoading(on) { document.body.classList.toggle("loading", on); }
+
+// Piloté par le backend : service affiché par la vue du compte ("gmail", "calendar"…, ou null)
+function setService(service) {
+  document.querySelectorAll(".svc").forEach((b) => {
+    const active = b.dataset.svc === service;
+    b.classList.toggle("active", active);
+    if (active) b.setAttribute("aria-current", "page");
+    else b.removeAttribute("aria-current");
+  });
+}
 
 // Piloté par le backend : aperçu de la couleur choisie dans la fenêtre de choix, effacé par le
 // prochain render() si elle n'est pas validée

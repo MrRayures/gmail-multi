@@ -39,5 +39,5 @@ Conséquence à garder en tête : **du HTML de la barre latérale ne peut jamais
 
 - L'état (`Store` : comptes, compte actif, thème) est dans `AppState`, sauvegardé dans `accounts.json` à chaque modification.
 - La barre latérale appelle les commandes avec `invoke` (`withGlobalTauri`) ; la plupart renvoient l'état complet (`View`), que `run()` réaffiche.
-- Dans l'autre sens, le backend pilote la barre avec `eval` sur des fonctions globales de `index.html` (`run('get_state')`, `onAccountMenu`, `setLoading`, `previewColor`). Il n'y a pas d'événements Tauri, car ils demanderaient des permissions supplémentaires.
+- Dans l'autre sens, le backend pilote la barre avec `eval` sur des fonctions globales de `index.html` (`run('get_state')`, `onAccountMenu`, `setLoading`, `setService`, `previewColor`). Il n'y a pas d'événements Tauri, car ils demanderaient des permissions supplémentaires.
 - Les vues de comptes reçoivent un script d'initialisation (`PROFILE_SCRIPT`) qui repère l'adresse et la photo du compte Google connecté et les signale par `report_profile`.
