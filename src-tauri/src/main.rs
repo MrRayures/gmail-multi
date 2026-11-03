@@ -91,6 +91,7 @@ const PROFILE_SCRIPT: &str = r#"
     });
   };
   let last = "";
+  let missing = 0;
   const check = () => {
     const btn = document.querySelector('a[href*="accounts.google.com/SignOutOptions"]');
     const label = (btn && btn.getAttribute("aria-label")) || "";
@@ -111,7 +112,6 @@ const PROFILE_SCRIPT: &str = r#"
     if (email && !avatar) missing++;
     setTimeout(check, email && (avatar || missing > 10) ? 60000 : 3000);
   };
-  let missing = 0;
   setTimeout(check, 3000);
 })();
 "#;
@@ -233,18 +233,21 @@ fn layout(app: &AppHandle) -> Result<(), String> {
     Ok(())
 }
 
-fn set_loading(app: &AppHandle, on: bool) {
+/// Exécute du JavaScript dans la barre latérale, qui expose pour cela des fonctions globales
+/// (`run`, `setLoading`…). Un échec est sans conséquence : l'affichage seul serait en retard.
+fn sidebar_eval(app: &AppHandle, js: &str) {
     if let Some(sidebar) = app.get_webview("sidebar") {
-        let _ = sidebar.eval(format!("setLoading({on})"));
+        let _ = sidebar.eval(js);
     }
+}
+
+fn set_loading(app: &AppHandle, on: bool) {
+    sidebar_eval(app, &format!("setLoading({on})"));
 }
 
 /// Met en évidence dans la barre latérale le service de la page affichée
 fn set_service(app: &AppHandle, service: Option<&str>) {
-    if let Some(sidebar) = app.get_webview("sidebar") {
-        let service = serde_json::json!(service);
-        let _ = sidebar.eval(format!("setService({service})"));
-    }
+    sidebar_eval(app, &format!("setService({})", serde_json::json!(service)));
 }
 
 /// Affiche la vue d'un compte dès le début du chargement de sa page, et arrête le loader.
@@ -311,11 +314,11 @@ fn show_active(app: &AppHandle, url: Option<&str>) -> Result<(), String> {
     create_account_view(app, &state, &id, &label, url).inspect_err(|_| set_loading(app, false))
 }
 
-/// Demande où enregistrer un téléchargement (pièce jointe), avec la fenêtre « Enregistrer sous » de
+/// Demande où enregistrer un téléchargement (pièce jointe, fichier Drive), avec la fenêtre « Enregistrer sous » de
 /// Windows, ouverte sur le dossier et le nom proposés par WebView2 (Téléchargements). Renvoie
 /// `false` si l'utilisateur annule, ce qui annule le téléchargement.
 fn ask_download_path(wv: &Webview, destination: &mut PathBuf) -> bool {
-    let mut dialog = rfd::FileDialog::new().set_title("Enregistrer la pièce jointe");
+    let mut dialog = rfd::FileDialog::new().set_title("Enregistrer le fichier");
     if let Some(dir) = destination.parent() {
         dialog = dialog.set_directory(dir);
     }
@@ -523,9 +526,12 @@ fn check_color(color: &str) -> Result<(), String> {
 fn set_color(state: &AppState, id: &str, color: &str) -> Result<(), String> {
     check_color(color)?;
     let mut store = state.store.lock().unwrap();
-    if let Some(a) = store.accounts.iter_mut().find(|a| a.id == id) {
-        a.color = Some(color.to_lowercase());
-    }
+    let account = store
+        .accounts
+        .iter_mut()
+        .find(|a| a.id == id)
+        .ok_or("compte inconnu")?;
+    account.color = Some(color.to_lowercase());
     state.save(&store);
     Ok(())
 }
@@ -607,9 +613,7 @@ fn open_prompt(
     // l'état enregistré, ce qui efface un éventuel aperçu de couleur non validé.
     win.on_window_event(move |event| {
         if matches!(event, WindowEvent::Destroyed) {
-            if let Some(sidebar) = app.get_webview("sidebar") {
-                let _ = sidebar.eval("run('get_state')");
-            }
+            sidebar_eval(&app, "run('get_state')");
         }
     });
     Ok(())
@@ -648,10 +652,8 @@ fn close_prompt(webview: tauri::Webview) {
 #[tauri::command]
 fn preview_color(app: AppHandle, id: String, color: String) -> Result<(), String> {
     check_color(&color)?;
-    if let Some(sidebar) = app.get_webview("sidebar") {
-        let args = serde_json::json!([id, color]);
-        let _ = sidebar.eval(format!("previewColor(...{args})"));
-    }
+    let args = serde_json::json!([id, color]);
+    sidebar_eval(&app, &format!("previewColor(...{args})"));
     Ok(())
 }
 
@@ -751,9 +753,7 @@ fn report_profile(
         a.avatar = avatar;
         state.save(&store);
     }
-    if let Some(sidebar) = app.get_webview("sidebar") {
-        let _ = sidebar.eval("run('get_state')");
-    }
+    sidebar_eval(&app, "run('get_state')");
     Ok(())
 }
 
@@ -814,10 +814,8 @@ fn main() {
             let Some((action, id)) = event.id().as_ref().split_once(':') else {
                 return;
             };
-            if let Some(sidebar) = app.get_webview("sidebar") {
-                let args = serde_json::json!([action, id]);
-                let _ = sidebar.eval(format!("onAccountMenu(...{args})"));
-            }
+            let args = serde_json::json!([action, id]);
+            sidebar_eval(app, &format!("onAccountMenu(...{args})"));
         })
         .setup(|app| {
             let dir = app.path().app_data_dir()?;

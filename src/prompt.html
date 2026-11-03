@@ -86,7 +86,7 @@ if (config.kind === "color") {
 const cancel = () => invoke("close_prompt").catch(console.error);
 document.querySelector("#cancel").onclick = cancel;
 document.addEventListener("keydown", (e) => { if (e.key === "Escape") cancel(); });
-document.querySelector("#form").addEventListener("submit", (e) => {
+form.addEventListener("submit", (e) => {
   e.preventDefault();
   const args = selected ? { id: config.id, color: selected } : { id: config.id, name: input.value };
   invoke("submit_prompt", args).catch(console.error);
